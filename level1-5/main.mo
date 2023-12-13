@@ -1,4 +1,3 @@
-import Account "account";
 import Result "mo:base/Result";
 import TrieMap "mo:base/TrieMap";
 import HashMap "mo:base/HashMap";
@@ -9,14 +8,9 @@ import Iter "mo:base/Iter";
 import Principal "mo:base/Principal";
 import Blob "mo:base/Blob";
 import Text "mo:base/Text";
-import Http "http";
 
 // Define the DAO actor class
 actor class DAO()  {
-    ///////////////
-    // LEVEL #1 //
-    /////////////
-
     // DAO basic information
     let name : Text = "Motoko Bootcamp DAO";
     var manifesto : Text = "Empower the next wave of builders to make the Web3 revolution a reality";
@@ -143,7 +137,7 @@ actor class DAO()  {
     let symbolToken = "MBT";
 
     // TrieMap to keep track of token balances
-    let ledger : TrieMap.TrieMap<Account, Nat> = TrieMap.TrieMap(Account.accountsEqual, Account.accountsHash);
+    // let ledger : TrieMap.TrieMap<Account, Nat> = TrieMap.TrieMap(Account.accountsEqual, Account.accountsHash);
 
     // Retrieve the name of the token
     public query func tokenName() : async Text {
@@ -266,7 +260,7 @@ actor class DAO()  {
         let defaultAccount = { owner = caller; subaccount = null };
         switch (ledger.get(defaultAccount)) {
             case (null) { return false };
-            case (?some) { return some >= 1 };
+            case (?some) { return some >= 1000 };
         };
     };
 
@@ -391,17 +385,17 @@ actor class DAO()  {
         numberOfMembers : Nat;
     };
     
-    public type HttpRequest = Http.Request;
-    public type HttpResponse = Http.Response;
+    // public type HttpRequest = Http.Request;
+    // public type HttpResponse = Http.Response;
 
-    public func http_request(request : HttpRequest) : async HttpResponse {
-        return ({
-            status_code = 404;
-            headers = [];
-            body = Blob.fromArray([]);
-            streaming_strategy = null;
-        });
-    };
+    // public func http_request(request : HttpRequest) : async HttpResponse {
+    //     return ({
+    //         status_code = 404;
+    //         headers = [];
+    //         body = Blob.fromArray([]);
+    //         streaming_strategy = null;
+    //     });
+    // };
 
     public query func getStats() : async DAOStats {
         return ({
@@ -413,134 +407,4 @@ actor class DAO()  {
             numberOfMembers = 0;
         });
     };
-
-  //Level 6, my own project
-
-  let products : TrieMap.TrieMap<Text, BuyStuff> = TrieMap.TrieMap(Text.equal, Text.hash);
-
-  public type ProductOk = {
-    #ProductAdded;
-    #ProductUpdated;
-    #ProductRemoved;
-  };
-
-  public type ProductErr = {
-    #ProductNotFound;
-  };
-
-    public type BuyStuff = {
-    name : Text;
-    price : Nat;
-    description : Text;
-    image : Text;
-  };
-
-  public type buyStuffResult = Result<BuyStuff, Text>;
-
-  public type productResult = Result<ProductOk, ProductErr>;
-
-  public type Images = {
-    urlLogo : ?Text;
-    urlBanner : ?Text;
-  };
-  public type Socials = {
-    GitHub : ?Text;
-    Linkedin : ?Text;
-    OpenChat : ?Text;
-  };
-
-  public shared func addProduct(name : Text, price : Nat, description : Text, image : Text) : async productResult {
-    let product = {
-      name = name;
-      price = price;
-      description = description;
-      image = image;
-    };
-    products.put(name, product);
-    return #ok(#ProductAdded);
-  };
-
-  public func updateProduct(name : Text, price : Nat, description : Text, image : Text) : async productResult {
-    let product = {
-      name = name;
-      price = price;
-      description = description;
-      image = image;
-    };
-    products.put(name, product);
-    return #ok(#ProductUpdated);
-  };
-
-  public func removeProduct(name : Text) : async productResult {
-    products.delete(name);
-    return #ok(#ProductRemoved);
-  };
-
-  public query func getProduct(name : Text) : async ?BuyStuff {
-    return products.get(name);
-  };
-
-  public query func getAllProducts() : async [BuyStuff] {
-    return Iter.toArray(products.vals());
-  };
-
-  public query func getNumberOfProducts() : async Nat {
-    return products.size();
-  };
-
-  public shared ({ caller }) func buyProduct(name : Text) : async buyStuffResult {
-    let product = switch (products.get(name)) {
-      case (null) { return #err("Product not found") };
-      case (?some) { some };
-    };
-    let defaultAccount = { owner = caller; subaccount = null };
-    switch (ledger.get(defaultAccount)) {
-      case (null) { return #err("Not enough balance") };
-      case (?some) {
-        if (some < product.price) {
-          return #err("Not enough balance");
-        };
-        ledger.put(defaultAccount, some - product.price);
-        return #ok(product);
-      };
-    };
-  };
-  
-  let MyProjectSocials : Socials = {
-    GitHub = ?"https://github.com/your_project";
-    OpenChat =? "https://oc.app/user/cl2ig-wqaaa-aaaar-aynca-cai";
-    Linkedin =?"https://www.linkedin.com/in/yong-zhi-m-9a5350219/";
-  };
-
-  public query func getName_MBC() : async Text {
-    return "My project name."; 
-  };
-
-  public query func getDescription_MBC() : async Text {
-    return "My project description."; 
-  };
-
-  public query func getAuthor_MBC() : async Text {
-    return "Yong Zhi"; 
-  };
-
-  public query func getSocialsAuthor_MBC() : async Socials {
-    return MyProjectSocials;
-  };
-
-  public query func getSocialsProject_MBC() : async Socials {
-    return MyProjectSocials;
-  };
-
-  public query func getImages_MBC() : async Images {
-    return {
-      urlLogo = ?"https://ibb.co/zJYt6JG";
-      urlBanner = ?"https://ibb.co/zJYt6JG";
-    };
-  };
-
-  
-
-
-
 };
