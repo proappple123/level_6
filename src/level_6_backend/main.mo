@@ -417,8 +417,6 @@ actor class DAO() {
 
   //Level 6, my own project
 
-  let products : TrieMap.TrieMap<Text, BuyStuff> = TrieMap.TrieMap(Text.equal, Text.hash);
-
   public type ProductOk = {
     #ProductAdded;
     #ProductUpdated;
@@ -427,7 +425,6 @@ actor class DAO() {
 
   public type ProductErr = {
     #ProductNotFound;
-    #NotPurchased;
   };
 
   public type BuyStuff = {
@@ -450,6 +447,7 @@ actor class DAO() {
 
   public type rateProductErr = {
     #ProductNotFound;
+    #NotPurchased;
   };
 
   public type buyStuffResult = Result<BuyStuff, Text>;
@@ -502,6 +500,8 @@ actor class DAO() {
     return MyProjectSocials;
   };
 
+  let products : TrieMap.TrieMap<Text, BuyStuff> = TrieMap.TrieMap(Text.equal, Text.hash);
+
   public shared func addProduct(name : Text, price : Nat, description : Text, image : Text, rating : Bool) : async productResult {
     let product = {
       name = name;
@@ -522,6 +522,7 @@ actor class DAO() {
       description = description;
       image = image;
     };
+
     let productWithRating = {
       name = product.name;
       price = product.price;
@@ -530,8 +531,10 @@ actor class DAO() {
       averageRating = 0.0;
       numberOfRatings = 0;
     };
+
     products.put(name, productWithRating);
     return #ok(#ProductUpdated);
+
   };
 
   public func removeProduct(name : Text) : async productResult {
@@ -592,7 +595,7 @@ actor class DAO() {
     let productOpt = products.get(name);
     switch (productOpt) {
       case (null) {
-        return #err(#ProductNotFound);
+        return #err(#NotPurchased);
       };
       case (?product) {
         let newNumberOfRatings = product.numberOfRatings + 1;
