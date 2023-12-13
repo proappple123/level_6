@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "level_6_backend": {
+      "main": "src/level_6_backend/main.mo",
+      "type": "motoko"
+    },
+    "level_6_frontend": {
+      "dependencies": [
+        "level_6_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/level_6_frontend/src/index.html"
+      },
+      "source": [
+        "src/level_6_frontend/assets",
+        "dist/level_6_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
