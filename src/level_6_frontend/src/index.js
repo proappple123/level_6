@@ -1,19 +1,12 @@
 import { level_6_backend } from "../../declarations/level_6_backend";
 
-document.querySelector("form").addEventListener("submit", async (e) => {
+document.getElementById("add-product-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const button = e.target.querySelector("button");
+  const name = document.getElementById("product-name").value;
+  const price = Number(document.getElementById("product-price").value);
+  const description = document.getElementById("product-description").value;
+  const image = document.getElementById("product-image").value;
 
-  const name = document.getElementById("name").value.toString();
-
-  button.setAttribute("disabled", true);
-
-  // Interact with foo actor, calling the greet method
-  const greeting = await level_6_backend.greet(name);
-
-  button.removeAttribute("disabled");
-
-  document.getElementById("greeting").innerText = greeting;
-
-  return false;
+  const result = await level_6_backend.addProduct(name, price, description, image, false);
+  alert(`Added product ${result.name} with id ${result.name}`);
 });
