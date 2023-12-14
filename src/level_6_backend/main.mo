@@ -17,6 +17,7 @@ import Result "mo:base/Result";
 actor class DAO() {
   //Level 6, my own project
   let ledger : TrieMap.TrieMap<Account.Account, Nat> = TrieMap.TrieMap(Account.accountsEqual, Account.accountsHash);
+  var nextProductId : Nat = 1;
 
   public type Result<A, B> = Result.Result<A, B>;
   public type HashMap<A, B> = HashMap.HashMap<A, B>;
@@ -32,6 +33,7 @@ actor class DAO() {
   };
 
   public type BuyStuff = {
+    id : Nat;
     name : Text;
     price : Nat;
     description : Text;
@@ -109,6 +111,7 @@ actor class DAO() {
 
   public shared func addProduct(name : Text, price : Nat, description : Text, image : Text, rating : Bool) : async productResult {
     let product = {
+      id = nextProductId;
       name = name;
       price = price;
       description = description;
@@ -118,6 +121,7 @@ actor class DAO() {
       numberOfRatings = 0;
     };
     products.put(name, product);
+    nextProductId += 1;
     return #ok(#ProductAdded);
   };
 
@@ -130,6 +134,7 @@ actor class DAO() {
     };
 
     let productWithRating = {
+      id = nextProductId;
       name = product.name;
       price = product.price;
       description = product.description;
@@ -208,6 +213,7 @@ actor class DAO() {
         let newAverageRating = (product.averageRating * Float.fromInt(product.numberOfRatings) + Float.fromInt(rating)) / Float.fromInt(newNumberOfRatings);
 
         let updatedProduct = {
+          id = nextProductId;
           name = product.name;
           price = product.price;
           description = product.description;
