@@ -13,7 +13,6 @@ import Float "mo:base/Float";
 import Array "mo:base/Array";
 import Result "mo:base/Result";
 
-
 actor class DAO() {
   //Level 6, my own project
   let ledger : TrieMap.TrieMap<Account.Account, Nat> = TrieMap.TrieMap(Account.accountsEqual, Account.accountsHash);
@@ -316,5 +315,81 @@ actor class DAO() {
         };
       };
     };
+  };
+
+  public shared ({ caller }) func buyCurrentCart() : async CartUpdateResult {
+    let cartOpt = carts.get(caller);
+    switch (cartOpt) {
+      case (null) {
+        return #err("Product not found.");
+      };
+      case (?existingCart) {
+        let totalPrice = Array.foldLeft<BuyStuff, Nat>(
+          existingCart,
+          0,
+          func(total, product) : Nat {
+            return total + product.price;
+          },
+        );
+        let defaultAccount = { owner = caller; subaccount = null };
+        switch (ledger.get(defaultAccount)) {
+          case (null) {
+            return #err("Not enough balance");
+          };
+          case (?balance) {
+            if (balance < totalPrice) {
+              return #err("Not enough balance");
+            };
+            ledger.put(defaultAccount, balance - totalPrice);
+            carts.delete(caller);
+            return #ok([]);
+          };
+        };
+      };
+    };
+  };
+
+  public type MintResult = Result<(), Text>;
+  let authorizedPrincipals : TrieMap.TrieMap<Principal, Bool> = TrieMap.TrieMap(Principal.equal, Principal.hash);
+
+  func isAuthorized(principal : Principal) : Bool {
+    switch (authorizedPrincipals.get(principal)) {
+      case (null) { false };
+      case (?isAuth) { isAuth };
+    };
+  };
+
+  public shared ({ caller }) func mint(balance : Nat, principal : Principal) : async MintResult {
+    if (isAuthorized(caller)) {
+      let defaultAccount = { owner = principal; subaccount = null };
+      switch (ledger.get(defaultAccount)) {
+        case (null) {
+          ledger.put(defaultAccount, balance);
+        };
+        case (?user) {
+          ledger.put(defaultAccount, user + balance);
+        };
+      };
+      return #ok(());
+    } else {
+      return #err("Not authorized");
+    };
+  };
+
+  public func authorize(principal : Principal) : async () {
+    authorizedPrincipals.put(principal, true);
+  };
+
+  public func deauthorize(principal : Principal) : async () {
+    authorizedPrincipals.delete(principal);
+  };
+
+  public shared ({ caller }) func getBalance(principal : Principal) : async ?Nat {
+    let defaultAccount = { owner = principal; subaccount = null };
+    return ledger.get(defaultAccount);
+  };
+
+  public shared (msg) func callerPrincipal() : async Principal {
+    return msg.caller;
   };
 };
