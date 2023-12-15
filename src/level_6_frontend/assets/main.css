@@ -38,6 +38,10 @@ button:hover {
   padding: 10px;
   border-radius: 5px;
   background: white;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  width: 250px;
 }
 
 img {
@@ -77,7 +81,6 @@ img {
 
 .cart-items, #product-list {
   display: flex;
-  flex-direction: column;
   gap: 10px;
 }
 
@@ -120,4 +123,10 @@ img {
 @media screen and (max-height: 450px) {
   .sidenav {padding-top: 15px;}
   .sidenav a {font-size: 18px;}
+}
+
+#header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

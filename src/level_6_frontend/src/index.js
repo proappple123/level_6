@@ -5,34 +5,29 @@ let isLoggedIn = false;
 let principalId = getCookie('principalId');
 
 function loadHomePage() {
-  
+  const welcomeDiv = document.getElementById('welcome-message');
+  welcomeDiv.innerHTML = `
+  <div id="header">
+  <h1>Welcome to DFINITY E-Commerce</h1>
+  <button id="login-button">Login with Internet Identity</button>
+  <button id="logout-button">Logout</button>
+  </div>
+
+  <div id="principal-id">Principal ID: ${principalId}</div>
+  `;
   const contentDiv = document.getElementById("content");
   principalId = getCookie('principalId');
   isLoggedIn = principalId !== '' && principalId !== null;
   contentDiv.innerHTML = `
-    <button id="login-button">Login with Internet Identity</button>
-    <button id="logout-button">Logout</button>
-    <button id="cart-button">View Cart</button>
     <button id="buy-button">Buy Cart</button>
-    Principal ID: ${principalId}
     </div>`;
 
   document.getElementById("buy-button").addEventListener("click", buyCurrentCart);
   document.getElementById("login-button").addEventListener("click", login);
   document.getElementById("logout-button").addEventListener("click", logout);
-  document.getElementById("cart-button").addEventListener("click", currentCart);
 
   updateLoginButton();
-
-  toggleDisplay("product", false);
-  toggleDisplay("cart", false);
 }
-
-function toggleDisplay(elementId, show) {
-  const element = document.getElementById(elementId);
-  element.style.display = show ? 'block' : 'none';
-}
-
 
 async function login() {
   const authClient = await AuthClient.create();
@@ -100,15 +95,6 @@ async function addToCart(productName) {
     alert(`Added product ${productName} to cart`, result);
     console.log("success");
     location.reload();
-  } catch (err) {
-    alert(err);
-  }
-}
-
-async function currentCart() {
-  try {
-    const result = await level_6_backend.currentCart();
-    alert(`Current cart: ${result}`);
   } catch (err) {
     alert(err);
   }
