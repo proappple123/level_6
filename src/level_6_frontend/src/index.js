@@ -2,20 +2,37 @@ import { level_6_backend } from "../../declarations/level_6_backend";
 import { AuthClient } from "@dfinity/auth-client";
 
 let isLoggedIn = false;
+let principalId = getCookie('principalId');
 
 function loadHomePage() {
+  
   const contentDiv = document.getElementById("content");
+  principalId = getCookie('principalId');
+  isLoggedIn = principalId !== '' && principalId !== null;
   contentDiv.innerHTML = `
-    <h1>Welcome to DFINITY E-Commerce</h1>
     <button id="login-button">Login with Internet Identity</button>
     <button id="logout-button">Logout</button>
     <button id="cart-button">View Cart</button>
-    `;
+    <button id="buy-button">Buy Cart</button>
+    Principal ID: ${principalId}
+    </div>`;
 
+  document.getElementById("buy-button").addEventListener("click", buyCurrentCart);
   document.getElementById("login-button").addEventListener("click", login);
   document.getElementById("logout-button").addEventListener("click", logout);
   document.getElementById("cart-button").addEventListener("click", currentCart);
+
+  updateLoginButton();
+
+  toggleDisplay("product", false);
+  toggleDisplay("cart", false);
 }
+
+function toggleDisplay(elementId, show) {
+  const element = document.getElementById(elementId);
+  element.style.display = show ? 'block' : 'none';
+}
+
 
 async function login() {
   const authClient = await AuthClient.create();
@@ -23,10 +40,11 @@ async function login() {
     identityProvider: "https://identity.ic0.app",
     onSuccess: async () => {
       const identity = authClient.getIdentity();
-      const principalId = identity.getPrincipal().toString();
+      principalId = identity.getPrincipal().toString();
       console.log("Logged in as:", principalId);
+      setCookie('principalId', principalId, 7);
       isLoggedIn = true;
-      updateLoginButton();
+      loadHomePage();
     },
     onError: (error) => {
       console.error("Login failed:", error);
@@ -37,9 +55,11 @@ async function login() {
 async function logout(){
   const authClient = await AuthClient.create();
   authClient.logout();
+  eraseCookie('principalId');
+  principalId = '';
   isLoggedIn = false;
-  updateLoginButton();
   console.log("Logged out");
+  location.reload();
 }
 
 async function updateLoginButton(){
@@ -158,10 +178,51 @@ async function loadViewCart() {
   }
 }
 
+async function buyCurrentCart(){
+  try{
+    const cartItems = await level_6_backend.buyCurrentCart();
+    alert(cartItems);
+  } catch(err){
+    alert("Error loading cart");
+  } 
+}
+
+function openNav(){
+document.getElementById("mySidenav").style.width = '250px';
+}
+
+function closeNav(){
+  document.getElementById("mySidenav").style.width = '0';
+}
+
+function setCookie(name, value, days) {
+  let expires = "";
+  if (days) {
+    let date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
+function getCookie(name) {
+  let nameEQ = name + "=";
+  let ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+}
+
+function eraseCookie(name) {
+  document.cookie = name + '=; Max-Age=-99999999;';
+}
 
 
-
-
+document.getElementById("open-btn").addEventListener("click", openNav);
+document.getElementById("close-btn").addEventListener("click", closeNav);
 document.getElementById("nav-home").addEventListener("click", loadHomePage);
 document.getElementById("nav-products").addEventListener("click", loadProductPage);
 document.getElementById("nav-cart").addEventListener("click", loadViewCart);

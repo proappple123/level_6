@@ -10,25 +10,50 @@
   </head>
   <body>
     <main>
-      <img src="logo2.svg" alt="DFINITY logo" />
-      <button id="nav-home">Home</button>
-      <button id="nav-products">Products</button>
-      <button id="nav-cart">Cart</button>
-      <div id="content">
+      <span id="open-btn" style="font-size:30px;cursor:pointer">&#9776;</span>
+      <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" id="close-btn"
+          >&times;</a
+        >
+        <button id="nav-home">Home</button>
+        <button id="nav-products">Products</button>
+        <button id="nav-cart">Cart</button>
       </div>
-      <div id="product">
-      </div>
-      <div id="cart">
-      </div>
+      <h1>Welcome to DFINITY E-Commerce</h1>
+      <div id="principal-id"></div>
+      <div id="content"></div>
+      <div id="product"></div>
+      <div id="cart"></div>
       <div id="add-product">
         <form id="add-product-form">
-          <input id="product-name" type="text" placeholder="Product Name" required />
-          <input id="product-price" type="number" placeholder="Price" required />
-          <input id="product-description" type="text" placeholder="Description" required />
-          <input id="product-image" type="text" placeholder="Image URL" required />
+          <input
+            id="product-name"
+            type="text"
+            placeholder="Product Name"
+            required
+          />
+          <input
+            id="product-price"
+            type="number"
+            placeholder="Price"
+            required
+          />
+          <input
+            id="product-description"
+            type="text"
+            placeholder="Description"
+            required
+          />
+          <input
+            id="product-image"
+            type="text"
+            placeholder="Image URL"
+            required
+          />
           <button type="submit">Add Product</button>
         </form>
-      </div>      
+      </div>
     </main>
   </body>
+  <img src="logo2.svg" alt="DFINITY logo" style="width:100px; height: 100px;" />
 </html>
